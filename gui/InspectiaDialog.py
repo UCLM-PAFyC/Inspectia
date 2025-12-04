@@ -77,6 +77,10 @@ class InspectiaDialog(QDialog):
         self.initialize()
 
     def close_project(self):
+        self.projectDefinitionPushButton.setEnabled(False)
+        self.openProjectPushButton.setEnabled(True)
+        self.closeProjectPushButton.setEnabled(False)
+        self.deleteProjectPushButton.setEnabled(True)
         return
 
     def delete_project(self):
@@ -152,6 +156,8 @@ class InspectiaDialog(QDialog):
         return
 
     def login(self):
+        self.projectComboBox.setCurrentIndex(0)
+        self.toolBox.setItemEnabled(0, False)
         title = 'Login in Inspectia'
         url = self.gis_server_api_url
         email = self.gis_server_api_email
@@ -176,7 +182,7 @@ class InspectiaDialog(QDialog):
             Tools.error_msg(str_error)
             if self.gis_server_api_email is None:
                 self.toolBox.setItemEnabled(0, False)
-                self.update_project_management_page()
+                # self.update_project_management_page()
             return
         self.gis_server_api_url = url
         self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_URL, self.gis_server_api_url)
@@ -211,6 +217,10 @@ class InspectiaDialog(QDialog):
         return
 
     def open_project(self):
+        self.projectDefinitionPushButton.setEnabled(False)
+        self.openProjectPushButton.setEnabled(True)
+        self.closeProjectPushButton.setEnabled(False)
+        self.deleteProjectPushButton.setEnabled(True)
         if self.pgs_connection is None:
             str_msg = ("Login before")
             Tools.info_msg(str_msg)
@@ -225,6 +235,10 @@ class InspectiaDialog(QDialog):
             str_error = ('Error creating project:\n{}'.format(str_error))
             Tools.info_msg(str_error)
             return
+        self.projectDefinitionPushButton.setEnabled(True)
+        self.openProjectPushButton.setEnabled(False)
+        self.closeProjectPushButton.setEnabled(True)
+        self.deleteProjectPushButton.setEnabled(False)
         return
 
     def project_definition(self,
@@ -299,7 +313,7 @@ class InspectiaDialog(QDialog):
             if self.user_is_owner:
                 self.deleteProjectPushButton.setEnabled(True)
             self.projectRolLineEdit.setText(project_role)
-            self.projectDefinitionPushButton.setEnabled(True)
+            self.projectDefinitionPushButton.setEnabled(False)
             if self.user_is_owner:
                 self.deleteProjectPushButton.setEnabled(True)
             else:

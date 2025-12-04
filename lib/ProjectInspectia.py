@@ -55,6 +55,8 @@ class ProjectInspectia(Project):
             return str_error, definition_is_saved
         project_id = db_project[defs_server_api.PROJECT_TAG_ID]
         db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+
+        # create layers
         str_error = super().create_layers(db_schema = db_schema)
         if str_error:
             str_error = ('For created project: {}, error recovering SQLs to create parent layers:\n{}'
@@ -67,15 +69,17 @@ class ProjectInspectia(Project):
         #     sql = sqls[i]
         #     sql = sql.replace('CREATE TABLE ', str_create_table_with_squema)
         #     sqls[i] = sql
-        str_error = self.pgs_connection.execute_sqls(project_id, sqls)
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
         if str_error:
             str_error = ('Executing SQLs creation project: {}, error:\n{}'
                          .format(project_name, str_error))
             return str_error, definition_is_saved
         self.sqls_to_process.clear()
-        str_error = self.save_project_definition(update = False, db_schema = db_schema)
+
+        # save project definition
+        str_error = super().save_project_definition(update = False, db_schema = db_schema)
         sqls = self.sqls_to_process
-        str_error = self.pgs_connection.execute_sqls(project_id, sqls)
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
         if str_error:
             str_error = ('Executing SQLs saving project definition: {}, error:\n{}'
                          .format(project_name, str_error))
@@ -122,6 +126,9 @@ class ProjectInspectia(Project):
             str_error = ('\nSetting definition for project: {}\nerror:\n{}'.format(project_name, str_error))
             return str_error
         self.sqls_to_process.clear()
+
+        #locations
+
         self.db_project = db_project
         self.db_schema = db_schema
         return str_error

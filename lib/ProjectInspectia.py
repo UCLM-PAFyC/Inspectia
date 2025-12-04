@@ -122,7 +122,6 @@ class ProjectInspectia(Project):
             str_error = ('\nSetting definition for project: {}\nerror:\n{}'.format(project_name, str_error))
             return str_error
         self.sqls_to_process.clear()
-
         self.db_project = db_project
         self.db_schema = db_schema
         return str_error

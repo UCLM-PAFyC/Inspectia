@@ -61,13 +61,13 @@ from Inspectia.lib.QGisIFaceInspectia import QGisIFaceInspectia
 # sys.path.append("C:\Program Files\JetBrains\PyCharm 2023.2\debug-eggs\pydevd-pycharm.egg")  # dhl
 # sys.path.append("C:\\Program Files\\JetBrains\\PyCharm 2025.2.0.1\\debug-eggs\\pydevd-pycharm.egg")  # dhl
 # import pydevd_pycharm
-
+# import pydevd
 
 class qInspectia(object):
 
     def __init__(self, iface):
 
-        # pydevd_pycharm.settrace('localhost', port=54100)
+        # pydevd.settrace('localhost', port=54100)
         # # pydevd_pycharm.settrace('localhost', port=54100, stdout_to_server=True, stderr_to_server=True)
 
         self.projVersionMajor = projVersionMajor

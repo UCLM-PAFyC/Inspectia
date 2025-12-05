@@ -168,3 +168,14 @@ class ProjectInspectia(Project):
             str_error = ('Error creating project:\n{}'.format(str_error))
             return str_error
         return str_error
+
+    def update_db_project_data(self):
+        str_error = ''
+        project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
+        project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
+        str_error, db_project_data = self.pgs_connection.get_project_data(project_id)
+        if str_error:
+            str_error = ('Updating project data: {}, error:\n{}'.format(project_name, str_error))
+            return str_error
+        self.db_project = db_project_data
+        return str_error

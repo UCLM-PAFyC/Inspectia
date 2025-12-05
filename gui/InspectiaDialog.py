@@ -94,14 +94,21 @@ class InspectiaDialog(QDialog):
         if str_error:
             str_error = ('Adding user: {} to project: {}, error:\n{}'.format(user_email, project_name, str_error))
             return str_error
+        str_error = self.project.update_db_project_data()
+        if str_error:
+            str_error = ('Adding user: {} to project: {}, error:\n{}'.format(user_email, project_name, str_error))
+            return str_error
         self.update_user_management()
         return str_error
 
     def close_project(self):
-        self.projectDefinitionPushButton.setEnabled(False)
-        self.openProjectPushButton.setEnabled(True)
-        self.closeProjectPushButton.setEnabled(False)
-        self.deleteProjectPushButton.setEnabled(True)
+        del self.project
+        self.project = None
+        self.projectComboBox.setCurrentIndex(0)
+        # self.projectDefinitionPushButton.setEnabled(False)
+        # self.openProjectPushButton.setEnabled(True)
+        # self.closeProjectPushButton.setEnabled(False)
+        # self.deleteProjectPushButton.setEnabled(True)
         return
 
     def delete_project(self):
@@ -314,7 +321,27 @@ class InspectiaDialog(QDialog):
         return
 
     def remove_role_to_user(self):
-        return
+        str_error = ''
+        project_id = self.project.db_project[defs_server_api.PROJECT_TAG_ID]
+        project_name = self.project.db_project[defs_server_api.PROJECT_TAG_NAME]
+        user_email = self.userComboBox.currentText()
+        user_id = None
+        for db_user_email in self.pgs_connection.user_by_email:
+            if db_user_email.casefold() == user_email:
+                user_id = self.pgs_connection.user_by_email[db_user_email][defs_server_api.USERS_TAG_ID]
+                break
+        if user_id is None: # never
+            return str_error
+        str_error = self.pgs_connection.remove_user_from_project(project_id, user_id)
+        if str_error:
+            str_error = ('Removing user: {} from project: {}, error:\n{}'.format(user_email, project_name, str_error))
+            return str_error
+        str_error = self.project.update_db_project_data()
+        if str_error:
+            str_error = ('Removing user: {} from project: {}, error:\n{}'.format(user_email, project_name, str_error))
+            return str_error
+        self.update_user_management()
+        return str_error
 
     def select_project(self):
         self.user_is_owner = False
@@ -368,7 +395,7 @@ class InspectiaDialog(QDialog):
         self.userComboBox.currentIndexChanged.connect(self.select_user)
         self.userComboBox.setEnabled(False)
         self.roleComboBox.setEnabled(False)
-        if self.user_is_owner:
+        if self.user_is_owner or self.user_is_admin:
             self.usersManagementGroupBox.setEnabled(True)
         else:
             self.usersManagementGroupBox.setEnabled(False)
@@ -425,6 +452,7 @@ class InspectiaDialog(QDialog):
         return
 
     def update_user_management(self):
+        self.role_by_project_user.clear()
         self.userComboBox.currentIndexChanged.disconnect(self.select_user)
         self.userComboBox.clear()
         self.userComboBox.addItem(defs_main.NO_COMBO_SELECT)

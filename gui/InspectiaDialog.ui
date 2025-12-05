@@ -17,16 +17,16 @@
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="registerPushButton">
+      <widget class="QPushButton" name="loginPushButton">
        <property name="text">
-        <string>Register</string>
+        <string>Login</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="loginPushButton">
+      <widget class="QPushButton" name="logoutPushButton">
        <property name="text">
-        <string>Login</string>
+        <string>Logout</string>
        </property>
       </widget>
      </item>
@@ -42,6 +42,13 @@
         </size>
        </property>
       </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="registerPushButton">
+       <property name="text">
+        <string>Register</string>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

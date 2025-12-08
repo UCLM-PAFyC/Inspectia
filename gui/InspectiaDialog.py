@@ -362,6 +362,15 @@ class InspectiaDialog(QDialog):
         return
 
     def remove_map_view(self):
+        if not self.qgis_iface:
+            return
+        map_view_id = self.mapViewsComboBox.currentText()
+        if map_view_id == defs_main.NO_COMBO_SELECT:
+            return
+        str_error = self.project.remove_map_view(map_view_id)
+        if str_error:
+            Tools.error_msg(str_error)
+        self.update_map_views()
         return
 
     def remove_role_to_user(self):
@@ -525,6 +534,22 @@ class InspectiaDialog(QDialog):
         self.qgis_iface = qgis_iface
 
     def update_map_view(self):
+        if not self.qgis_iface:
+            return
+        map_view_id = self.mapViewsComboBox.currentText()
+        if map_view_id == defs_main.NO_COMBO_SELECT:
+            return
+        str_error, wkb_geometry = self.qgis_iface.get_map_canvas_wkb_geometry_in_project_crs()
+        if str_error:
+            Tools.error_msg(str_error)
+            self.update_locations()
+            return
+        str_error = self.project.update_map_view(map_view_id, wkb_geometry)
+        if str_error:
+            Tools.error_msg(str_error)
+            self.update_locations()
+            return
+        self.update_map_views()
         return
 
     def update_map_views(self):
@@ -548,6 +573,7 @@ class InspectiaDialog(QDialog):
         self.mapViewsComboBox.currentIndexChanged.connect(self.select_map_view)
         self.mapViewsComboBox.setEnabled(True)
         self.locationsGroupBox.setEnabled(True)
+        self.select_map_view()
         return
 
     def update_project_management(self):

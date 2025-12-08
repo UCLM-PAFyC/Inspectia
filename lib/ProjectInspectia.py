@@ -174,6 +174,21 @@ class ProjectInspectia(Project):
         self.locations_layer_name = self.layer_name_prefix + defs_project.LOCATIONS_LAYER_NAME
         return str_error
 
+    def remove_map_view(self,
+                        map_view_id):
+        str_error = ''
+        if not map_view_id in self.map_views:
+            str_error = ('Not exists location with name: {}'.format(map_view_id))
+            return str_error
+        if not defs_server_api.PROJECT_TAG_WFS_SERVICE in self.db_project:
+            str_error = ('Not exists tag: {} in db_project'.format(defs_server_api.PROJECT_TAG_WFS_SERVICE))
+            return str_error
+        wfs_service = self.db_project[defs_server_api.PROJECT_TAG_WFS_SERVICE]
+        wfs_url = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_URL]
+        wfs_user = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_USER]
+        wfs_password = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_PASSWORD]
+        return super().remove_map_view(map_view_id, wfs = [wfs_url, wfs_user, wfs_password])
+
     def save(self):
         str_error = ''
         name = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_NAME]
@@ -217,3 +232,21 @@ class ProjectInspectia(Project):
             return str_error
         self.db_project = db_project_data
         return str_error
+
+    def update_map_view(self,
+                        map_view_id,
+                        map_view_wkb_geometry):
+        str_error = ''
+        if not map_view_id in self.map_views:
+            str_error = ('Not exists location with name: {}'.format(map_view_id))
+            return str_error
+        if not defs_server_api.PROJECT_TAG_WFS_SERVICE in self.db_project:
+            str_error = ('Not exists tag: {} in db_project'.format(defs_server_api.PROJECT_TAG_WFS_SERVICE))
+            return str_error
+        wfs_service = self.db_project[defs_server_api.PROJECT_TAG_WFS_SERVICE]
+        wfs_url = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_URL]
+        wfs_user = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_USER]
+        wfs_password = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_PASSWORD]
+        update = True
+        return super().save_map_view(map_view_id, map_view_wkb_geometry,
+                                     update = update, wfs = [wfs_url, wfs_user, wfs_password])

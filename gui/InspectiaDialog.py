@@ -21,6 +21,7 @@ sys.path.append(os.path.join(current_path, '../..'))
 from Inspectia.defs import defs_paths
 from Inspectia.defs import defs_main
 from Inspectia.defs import defs_qsettings
+from Inspectia.defs import defs_processes as app_defs_processes
 
 common_libs_absolute_path = os.path.join(current_path, defs_paths.COMMON_LIBS_RELATIVE_PATH)
 sys.path.append(common_libs_absolute_path)
@@ -29,15 +30,16 @@ from Inspectia.lib.ProjectInspectia import ProjectInspectia
 
 from pyLibCRSs import CRSsDefines as defs_crs
 from pyLibCRSs.CRSsTools import CRSsTools
-# from pyLibProcesses.defs import defs_processes
-# from pyLibProcesses.defs import defs_project as processes_defs_project
-# from pyLibProcesses.ProcessesManager import ProcessesManager
-# from pyLibProcesses.gui.ProcessesManagerDialog import ProcessesManagerDialog
-# from pyLibProcesses.gui.ProjectProcessesDialog import ProjectProcessesDialog
+from pyLibProcesses.defs import defs_processes
+from pyLibProcesses.defs import defs_project as processes_defs_project
+from pyLibProcesses.ProcessesManager import ProcessesManager
+from pyLibProcesses.gui.ProcessesManagerDialog import ProcessesManagerDialog
+from pyLibProcesses.gui.ProjectProcessesDialog import ProjectProcessesDialog
 from pyLibQtTools import Tools
 from pyLibQtTools.LoginDialog import LoginDialog
 from pyLibGisApi.lib.PostGISServerAPI import PostGISServerConnection
 from pyLibGisApi.defs import defs_server_api
+from pyLibGisApi.defs import defs_processes as postgis_api_defs_processes
 
 
 # from pyLibQtTools.Tools import SimpleTextEditDialog
@@ -183,21 +185,21 @@ class InspectiaDialog(QDialog):
         self.removeMapViewPushButton.clicked.connect(self.remove_map_view)
         self.updateFromMapViewPushButton.clicked.connect(self.update_map_view)
         self.newFromMapViewPushButton.clicked.connect(self.new_map_view)
-        # process_path_by_provider = {}
-        # for provider in app_defs_processes.processes_providers:
-        # process_path_by_provider[provider] = []
-        # process_path_by_provider[provider].append(app_defs_processes.processes_path)
-        # for provider in photogrammetry_defs_processes.processes_providers:
-        # if not provider in process_path_by_provider:
-        # process_path_by_provider[provider] = []
-        # process_path_by_provider[provider].append(photogrammetry_defs_processes.processes_path)
-        # processes_manager = ProcessesManager()
-        # str_error = processes_manager.initialize(process_path_by_provider)
-        # if str_error:
-        # Tools.error_msg(str_error)
-        # return
-        # self.processes_manager = processes_manager
-        # self.processesManagerPushButton.clicked.connect(self.select_processes_manager_gui)
+        process_path_by_provider = {}
+        for provider in app_defs_processes.processes_providers:
+            process_path_by_provider[provider] = []
+            process_path_by_provider[provider].append(app_defs_processes.processes_path)
+        for provider in postgis_api_defs_processes.processes_providers:
+            if not provider in process_path_by_provider:
+                process_path_by_provider[provider] = []
+            process_path_by_provider[provider].append(postgis_api_defs_processes.processes_path)
+        processes_manager = ProcessesManager()
+        str_error = processes_manager.initialize(process_path_by_provider)
+        if str_error:
+            Tools.error_msg(str_error)
+            return
+        self.processes_manager = processes_manager
+        self.processesManagerPushButton.clicked.connect(self.select_processes_manager_gui)
         self.toolBox.setEnabled(False)
         # self.toolBox.setItemEnabled(0, False)
         # self.toolBox.setItemEnabled(1, False)
@@ -440,6 +442,16 @@ class InspectiaDialog(QDialog):
             self.newFromMapViewPushButton.setEnabled(True)
             self.setMapViewPushButton.setEnabled(True)
         return
+
+    def select_processes_manager_gui(self):
+        str_error = ""
+        title = defs_processes.PROCESSES_MANAGER_DIALOG_TITLE
+        dialog = ProcessesManagerDialog(self.processes_manager, title, self.qgis_iface, self.settings, self)
+        dialog_result = dialog.exec()
+        # if dialog_result != QDialog.Accepted:
+        #     return str_error
+        # Tools.error_msg(str_error)
+        return str_error
 
     def select_project(self):
         self.user_is_owner = False

@@ -143,7 +143,8 @@ class ProjectInspectia(Project):
                                          .format(project_name, layer_table_name, str_error))
                             return str_error, definition_is_saved
                 if sld_content:
-                    sld_content = sld_content.replace('"', '\\"')
+                    # sld_content = sld_content.replace('"', '\\"')
+                    sld_content = sld_content.replace('\n', '')
                     layer[defs_layers.LAYER_SLD_CONTENT] = sld_content
                 layers_group_db_id = None
                 if layer_table_name in defs_layers.layers_group_name_by_layer:

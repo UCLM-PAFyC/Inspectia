@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>712</width>
-    <height>419</height>
+    <width>806</width>
+    <height>505</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_4">
+  <layout class="QGridLayout" name="gridLayout_6">
    <item row="0" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
@@ -62,14 +62,14 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>692</width>
-        <height>275</height>
+        <width>786</width>
+        <height>297</height>
        </rect>
       </property>
       <attribute name="label">
        <string>Project Management</string>
       </attribute>
-      <layout class="QGridLayout" name="gridLayout_3">
+      <layout class="QGridLayout" name="gridLayout_4">
        <item row="0" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
@@ -403,6 +403,80 @@
         </widget>
        </item>
        <item row="3" column="0">
+        <widget class="QGroupBox" name="groupBox">
+         <property name="title">
+          <string>Processes</string>
+         </property>
+         <layout class="QGridLayout" name="gridLayout_3">
+          <item row="0" column="8">
+           <widget class="QPushButton" name="processRunPushButton">
+            <property name="text">
+             <string>Run</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="processesDbPushButton">
+            <property name="text">
+             <string>Database</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="3">
+           <widget class="QComboBox" name="processComboBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="4">
+           <widget class="QPushButton" name="processParametersPushButton">
+            <property name="text">
+             <string>Parameters</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="7">
+           <widget class="QPushButton" name="processDescriptionPushButton">
+            <property name="text">
+             <string>Description</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="2">
+           <spacer name="horizontalSpacer_6">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="6">
+           <widget class="QPushButton" name="processAuthorPushButton">
+            <property name="text">
+             <string>Author</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="5">
+           <widget class="QPushButton" name="processLabelPushButton">
+            <property name="text">
+             <string>Label</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="4" column="0">
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -422,7 +496,7 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>692</width>
+        <width>782</width>
         <height>275</height>
        </rect>
       </property>
@@ -462,6 +536,60 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="3" column="0">
+    <widget class="QGroupBox" name="processInformationGroupBox">
+     <property name="title">
+      <string>Process information:</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_5">
+      <item row="0" column="1">
+       <widget class="QProgressBar" name="processProgressBar">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="value">
+         <number>24</number>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2">
+       <spacer name="horizontalSpacer_7">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>194</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="0">
+       <widget class="QLineEdit" name="processLineEdit">
+        <property name="minimumSize">
+         <size>
+          <width>500</width>
+          <height>0</height>
+         </size>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

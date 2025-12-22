@@ -40,14 +40,12 @@ from pyLibQtTools.LoginDialog import LoginDialog
 from pyLibGisApi.lib.PostGISServerAPI import PostGISServerConnection
 from pyLibGisApi.defs import defs_server_api
 from pyLibGisApi.defs import defs_processes as postgis_api_defs_processes
-
-
-# from pyLibQtTools.Tools import SimpleTextEditDialog
-# from pyLibParameters import defs_pars
-# from pyLibParameters.ParametersManager import ParametersManager
-# from pyLibParameters.ui_qt.ParametersManagerDialog import ParametersManagerDialog
-# from pyLibQtTools.QProcessDialog import QProcessDialog
-# from pyLibQtTools import defs_qprocess
+from pyLibQtTools.Tools import SimpleTextEditDialog
+from pyLibParameters import defs_pars
+from pyLibParameters.ParametersManager import ParametersManager
+from pyLibParameters.ui_qt.ParametersManagerDialog import ParametersManagerDialog
+from pyLibQtTools.QProcessDialog import QProcessDialog
+from pyLibQtTools import defs_qprocess
 # from pyLibQtTools.multipleFileSelectorDialog.multiple_file_selector_dialog import MultipleFileSelectorDialog
 
 
@@ -134,6 +132,30 @@ class InspectiaDialog(QDialog):
 
     def initialize(self):
         self.crs_tools = CRSsTools()
+        # process_path_by_provider = {}
+        # for provider in app_defs_processes.processes_providers:
+        #     process_path_by_provider[provider] = []
+        #     process_path_by_provider[provider].append(app_defs_processes.processes_path)
+        # for provider in postgis_api_defs_processes.processes_providers:
+        #     if not provider in process_path_by_provider:
+        #         process_path_by_provider[provider] = []
+        #     process_path_by_provider[provider].append(postgis_api_defs_processes.processes_path)
+        # processes_manager = ProcessesManager()
+        # str_error = processes_manager.initialize(process_path_by_provider)
+        # if str_error:
+        #     Tools.error_msg(str_error)
+        #     return
+        # self.processes_manager = processes_manager
+        # self.processesManagerPushButton.clicked.connect(self.select_processes_manager_gui)
+        processes_manager = ProcessesManager()
+        str_error = processes_manager.initialize(app_defs_processes.process_path_by_provider,
+                                                 app_defs_processes.ignored_process_name_by_provider)
+        if str_error:
+            Tools.error_msg(str_error)
+            return
+        self.processes_manager = processes_manager
+        self.processesManagerPushButton.clicked.connect(self.select_processes_manager_gui)
+
         self.pgs_connection = PostGISServerConnection(self.settings)
         self.last_path = self.settings.value(defs_qsettings.QSETTINGS_TAG_LAST_PATH)
         current_dir = QDir.current()
@@ -185,21 +207,24 @@ class InspectiaDialog(QDialog):
         self.removeMapViewPushButton.clicked.connect(self.remove_map_view)
         self.updateFromMapViewPushButton.clicked.connect(self.update_map_view)
         self.newFromMapViewPushButton.clicked.connect(self.new_map_view)
-        process_path_by_provider = {}
-        for provider in app_defs_processes.processes_providers:
-            process_path_by_provider[provider] = []
-            process_path_by_provider[provider].append(app_defs_processes.processes_path)
-        for provider in postgis_api_defs_processes.processes_providers:
-            if not provider in process_path_by_provider:
-                process_path_by_provider[provider] = []
-            process_path_by_provider[provider].append(postgis_api_defs_processes.processes_path)
-        processes_manager = ProcessesManager()
-        str_error = processes_manager.initialize(process_path_by_provider)
-        if str_error:
-            Tools.error_msg(str_error)
-            return
-        self.processes_manager = processes_manager
-        self.processesManagerPushButton.clicked.connect(self.select_processes_manager_gui)
+
+        # processes
+        self.processComboBox.setSizeAdjustPolicy(QComboBox.AdjustToContents)
+        self.processComboBox.addItem(defs_main.NO_COMBO_SELECT)
+        self.processComboBox.currentIndexChanged.connect(self.process_changed)
+        self.processesDbPushButton.clicked.connect(self.processes_db)
+        self.processParametersPushButton.clicked.connect(self.process_parameters)
+        self.processLabelPushButton.clicked.connect(self.process_label)
+        self.processAuthorPushButton.clicked.connect(self.process_author)
+        self.processDescriptionPushButton.clicked.connect(self.process_description)
+        self.processRunPushButton.clicked.connect(self.process_run)
+        self.processesDbPushButton.setEnabled(False)
+        self.processParametersPushButton.setEnabled(False)
+        self.processLabelPushButton.setEnabled(False)
+        self.processAuthorPushButton.setEnabled(False)
+        self.processDescriptionPushButton.setEnabled(False)
+        self.processRunPushButton.setEnabled(False)
+
         self.toolBox.setEnabled(False)
         # self.toolBox.setItemEnabled(0, False)
         # self.toolBox.setItemEnabled(1, False)
@@ -355,6 +380,227 @@ class InspectiaDialog(QDialog):
             self.usersManagementGroupBox.setEnabled(False)
         self.locationsGroupBox.setEnabled(True)
         self.update_map_views()
+        return
+
+    def process_author(self):
+        current_text = self.process_author_value
+        title = "Enter process author"
+        text, ok = QInputDialog().getText(self, title,
+                                          "Process author:", QLineEdit.Normal,
+                                          current_text)
+        if ok and text:
+            self.process_author_value = text
+        return
+
+    def process_changed(self):
+        self.processParametersPushButton.setEnabled(False)
+        self.processLabelPushButton.setEnabled(False)
+        self.processAuthorPushButton.setEnabled(False)
+        self.processDescriptionPushButton.setEnabled(False)
+        self.processRunPushButton.setEnabled(False)
+        process = self.processComboBox.currentText()
+        if process != defs_main.NO_COMBO_SELECT:
+            self.processParametersPushButton.setEnabled(True)
+            self.processLabelPushButton.setEnabled(True)
+            self.processAuthorPushButton.setEnabled(True)
+            self.processDescriptionPushButton.setEnabled(True)
+            self.processRunPushButton.setEnabled(True)
+
+    def processes_db(self):
+        title = processes_defs_project.PROJECT_PROCESSES_DIALOG_TITLE
+        # dialog = ProjectProcessesDialog(self.project, title, self.settings, self)
+        # dialog_result = dialog.exec()
+        return
+
+    def process_description(self):
+        current_text = self.process_description_value
+        title = "Enter process description"
+        dialog = SimpleTextEditDialog(title, current_text, False)
+        ret = dialog.exec()
+        # if ret == QDialog.Accepted:
+        #     text = dialog.get_text()
+        #     self.descriptionLineEdit.setText(text)
+        text = dialog.get_text()
+        if text != current_text:
+            self.process_description_value = text
+        return
+
+    def process_label(self):
+        current_text = self.process_label_value
+        title = "Enter process label"
+        text, ok = QInputDialog().getText(self, title,
+                                          "Process label (unique value):", QLineEdit.Normal,
+                                          current_text)
+        if ok and text:
+            self.process_label_value = text
+        return
+
+    def process_parameters(self):
+        process_name = self.processComboBox.currentText()
+        if process_name == defs_main.NO_COMBO_SELECT:
+            return
+        process = None
+        for process_provider in self.processes_manager.processes_by_provider:
+            if process_name in self.processes_manager.processes_by_provider[process_provider]:
+                process = self.processes_manager.processes_by_provider[process_provider][process_name]
+                break
+        if not process:
+            return
+        parametes_manager = process[defs_processes.PROCESS_FIELD_PARAMETERS]
+        process_file_path = process[defs_processes.PROCESS_FILE]
+        title = defs_pars.PARAMETERS_MANAGER_DIALOG_TITLE
+        dialog = ParametersManagerDialog(parametes_manager, title, self.qgis_iface, self.settings, self)
+        dialog_result = dialog.exec()
+        return
+
+    def process_run(self):
+        if not self.process_author_value:
+            msg = ("Input process author")
+            Tools.info_msg(msg)
+            return
+        if not self.process_description_value:
+            msg = ("Input process description")
+            Tools.info_msg(msg)
+            return
+        if not self.process_label_value:
+            msg = ("Input process label")
+            Tools.info_msg(msg)
+            return
+        if self.process_label_value in self.project.process_by_label:
+            msg = ("Exists another process with label: {}".format(self.process_label_value))
+            msg += ("\nChange the label for new process,")
+            msg += ("\nchange the label in the existing process ")
+            msg += ("\nor remove the existing process")
+            Tools.info_msg(msg)
+            return
+        process_name = self.processComboBox.currentText()
+        if process_name == defs_main.NO_COMBO_SELECT:
+            return
+        process = None
+        process_provider = None
+        for process_provider in self.processes_manager.processes_by_provider:
+            if process_name in self.processes_manager.processes_by_provider[process_provider]:
+                process = self.processes_manager.processes_by_provider[process_provider][process_name]
+                break
+        if not process:
+            return
+        str_error, output_arguments = self.processes_manager.get_process_output_arguments(process_provider,
+                                                                                          process_name)
+        if str_error:
+            Tools.error_msg(str_error)
+            return
+        output_as_json_str = json.dumps(output_arguments)
+        process_log = None
+        process_date_time_as_string = None
+        # self.update_objects_fully_qualified_names()
+        # if isinstance(process[defs_processes.PROCESS_FIELD_SRC], dict):
+        #     if not defs_processes.PROCESS_SRC_ATTRIBUTE_CLASS in process[defs_processes.PROCESS_FIELD_SRC]:
+        #         msg = ("Not exists {} attribute in src".format(defs_processes.PROCESS_SRC_ATTRIBUTE_CLASS))
+        #         msg += ("\nfor proccess: {}".format(process_name))
+        #         Tools.info_msg(msg)
+        #         return
+        #     if not defs_processes.PROCESS_SRC_ATTRIBUTE_METHOD in process[defs_processes.PROCESS_FIELD_SRC]:
+        #         msg = ("Not exists {} attribute in src".format(defs_processes.PROCESS_SRC_ATTRIBUTE_METHOD))
+        #         msg += ("\nfor proccess: {}".format(process_name))
+        #         Tools.info_msg(msg)
+        #         return
+        #     object_fully_qualified_name = process[defs_processes.PROCESS_FIELD_SRC][defs_processes.PROCESS_SRC_ATTRIBUTE_CLASS]
+        #     object_method_name = process[defs_processes.PROCESS_FIELD_SRC][defs_processes.PROCESS_SRC_ATTRIBUTE_METHOD]
+        #     object_fully_qualified_name = object_fully_qualified_name.lower()
+        #     # object_method_name = object_method_name.lower()
+        #     if not object_fully_qualified_name in self.object_by_fully_qualified_name:
+        #         msg = ("Not exists registered object: {}".format(object_fully_qualified_name))
+        #         msg += ("\nfor proccess: {}".format(process_name))
+        #         Tools.info_msg(msg)
+        #         return
+        #     object = self.object_by_fully_qualified_name[object_fully_qualified_name]
+        #     if object is None:
+        #         msg = ("None object: {}".format(object_fully_qualified_name))
+        #         msg += ("\nfor proccess: {}".format(process_name))
+        #         Tools.info_msg(msg)
+        #         return
+        #     method = None
+        #     try:
+        #         method = getattr(object, object_method_name)
+        #     except AttributeError as e:
+        #         msg = ("For proccess: {}".format(process_name))
+        #         msg += ("\nError: {}".format(str(e)))
+        #         Tools.info_msg(msg)
+        #         return
+        #     if method is None:
+        #         msg = ("No found method: {} in object: {}".format(object_method_name, object_fully_qualified_name))
+        #         msg += ("\nfor proccess: {}".format(process_name))
+        #         Tools.info_msg(msg)
+        #         return
+        #     # str_error = object.run_library_process(process, self)
+        #     str_error, end_date_time, log = method(process, self)
+        #     if str_error:
+        #         Tools.error_msg(str_error)
+        #         return
+        #     process_log = ''
+        #     if not log is None:
+        #         process_log = log
+        #     process_date_time_as_string = None
+        #     if end_date_time is not None:
+        #         process_date_time_as_string = end_date_time.strftime(defs_main.DATE_TIME_STRING_FORMAT)
+        # else:
+        #     str_error, arguments = self.processes_manager.get_process_arguments(process_provider, process_name)
+        #     if str_error:
+        #         Tools.error_msg(str_error)
+        #         return
+        #     arguments.append('--' + defs_qprocess.ARGPARSER_TAG_STRING_TO_PUBLISH_THE_NUMBER_OF_STEPS)
+        #     arguments.append('\"' + defs_qprocess.STRING_TO_PUBLISH_THE_NUMBER_OF_STEPS_DEFAULT + '\"')
+        #     arguments.append('--' + defs_qprocess.ARGPARSER_TAG_STRING_TO_PUBLISH_COMPLETED_STEPS_PERCENTAGE)
+        #     arguments.append('\"' + defs_qprocess.STRING_TO_PUBLISH_COMPLETED_STEPS_PERCENTAGE_DEFAULT + '\"')
+        #     str_arguments = ""
+        #     for i in range(len(arguments)):
+        #         if i > 0:
+        #             str_arguments += ' '
+        #         if isinstance(arguments[i], str):
+        #             str_arguments += arguments[i]
+        #         else:
+        #             str_arguments += str(arguments[i])
+        #     program = defs_processes.PROCESS_PYTHON_PROGRAM
+        #     title = ("Program: {}".format(program, arguments))
+        #     dialog = QProcessDialog(title, self)
+        #     dialog.start_process(program, arguments,
+        #                          defs_qprocess.STRING_TO_PUBLISH_THE_NUMBER_OF_STEPS_DEFAULT,
+        #                          defs_qprocess.STRING_TO_PUBLISH_COMPLETED_STEPS_PERCENTAGE_DEFAULT)
+        #     dialog_result = dialog.exec()
+        #     process_date_time_as_string = dialog.get_end_date_time_as_string(defs_main.DATE_TIME_STRING_FORMAT)
+        #     process_log = dialog.get_log()
+        # process_content_as_json = {}
+        # process_content_as_json[defs_processes.PROCESS_FIELD_NAME] = process[defs_processes.PROCESS_FIELD_NAME]
+        # process_content_as_json[defs_processes.PROCESS_FIELD_CONTRIBUTIONS] = process[defs_processes.PROCESS_FIELD_CONTRIBUTIONS]
+        # process_content_as_json[defs_processes.PROCESS_FIELD_SRC] = process[defs_processes.PROCESS_FIELD_SRC]
+        # process_content_as_json[defs_processes.PROCESS_FIELD_DESCRIPTION] = process[defs_processes.PROCESS_FIELD_DESCRIPTION]
+        # process_content_as_json[defs_processes.PROCESS_FIELD_DOC] = process[defs_processes.PROCESS_DOC]
+        # process_content_as_json[defs_processes.PROCESS_FIELD_PARAMETERS] \
+        #     = process[defs_processes.PROCESS_FIELD_PARAMETERS].parameters_as_list_of_dict
+        # process_content_as_json[defs_processes.PROCESS_FIELD_DOC] = process[defs_processes.PROCESS_DOC]
+        # process_content_as_json = json.dumps(process_content_as_json, indent=4, ensure_ascii=False)
+        # process_content = process_content_as_json
+        # process_output = output_as_json_str
+        # process_remarks = ''
+        # str_error = self.project.save_process(process_content,
+        #                                       self.process_author_value,
+        #                                       self.process_label_value,
+        #                                       self.process_description_value,
+        #                                       process_log,
+        #                                       process_date_time_as_string,
+        #                                       process_output,
+        #                                       process_remarks)
+        # if str_error:
+        #     Tools.error_msg(str_error)
+        #     return
+        # else:
+        #     str_msg = "Process completed successfully"
+        #     Tools.info_msg(str_msg)
+        # if self.qgis_iface:
+        #     str_error = self.qgis_iface.reload_all_layers()
+        #     if str_error:
+        #         Tools.error_msg(str_error)
+        #         return
         return
 
     def project_definition(self,

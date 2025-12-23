@@ -218,19 +218,19 @@ class InspectiaDialog(QDialog):
         self.processAuthorPushButton.clicked.connect(self.process_author)
         self.processDescriptionPushButton.clicked.connect(self.process_description)
         self.processRunPushButton.clicked.connect(self.process_run)
-        self.processesDbPushButton.setEnabled(False)
-        self.processParametersPushButton.setEnabled(False)
-        self.processLabelPushButton.setEnabled(False)
-        self.processAuthorPushButton.setEnabled(False)
-        self.processDescriptionPushButton.setEnabled(False)
-        self.processRunPushButton.setEnabled(False)
+        # self.processesDbPushButton.setEnabled(False)
+        # self.processParametersPushButton.setEnabled(False)
+        # self.processLabelPushButton.setEnabled(False)
+        # self.processAuthorPushButton.setEnabled(False)
+        # self.processDescriptionPushButton.setEnabled(False)
+        # self.processRunPushButton.setEnabled(False)
 
         self.toolBox.setEnabled(False)
         # self.toolBox.setItemEnabled(0, False)
         # self.toolBox.setItemEnabled(1, False)
         # if self.qgis_iface is None:
         #     self.locationsGroupBox.setEnabled(False)
-        # return
+        return
 
     def login(self):
         self.close_project()
@@ -380,6 +380,8 @@ class InspectiaDialog(QDialog):
             self.usersManagementGroupBox.setEnabled(False)
         self.locationsGroupBox.setEnabled(True)
         self.update_map_views()
+        self.processesGroupBox.setEnabled(True)
+        self.processInformationGroupBox.setEnabled(False)
         return
 
     def process_author(self):
@@ -408,8 +410,8 @@ class InspectiaDialog(QDialog):
 
     def processes_db(self):
         title = processes_defs_project.PROJECT_PROCESSES_DIALOG_TITLE
-        # dialog = ProjectProcessesDialog(self.project, title, self.settings, self)
-        # dialog_result = dialog.exec()
+        dialog = ProjectProcessesDialog(self.project, title, self.settings, self)
+        dialog_result = dialog.exec()
         return
 
     def process_description(self):
@@ -763,6 +765,8 @@ class InspectiaDialog(QDialog):
         self.newFromMapViewPushButton.setEnabled(False)
         self.mapViewsComboBox.setEnabled(False)
         self.locationsGroupBox.setEnabled(False)
+        self.processesGroupBox.setEnabled(False)
+        self.processInformationGroupBox.setEnabled(False)
         return
 
     def select_role(self):

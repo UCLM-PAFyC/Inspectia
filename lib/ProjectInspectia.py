@@ -21,6 +21,8 @@ from pyLibProject.defs import defs_layers_groups
 from pyLibProject.defs import defs_layers
 from pyLibGisApi.lib.PostGISServerAPI import PostGISServerConnection
 from pyLibGisApi.defs import defs_server_api
+from pyLibProcesses.defs import defs_project as processes_defs_project
+from pyLibProcesses.defs import defs_processes as processes_defs_processes
 
 class ProjectInspectia(Project):
     def __init__(self, qgis_iface, settings, crs_tools, pgs_connection):
@@ -227,6 +229,38 @@ class ProjectInspectia(Project):
         self.db_schema = db_schema
         self.layer_name_prefix = self.db_schema + ':'
         self.locations_layer_name = self.layer_name_prefix + defs_project.LOCATIONS_LAYER_NAME
+
+        # project processes
+        str_error = super().load_processes(db_schema = db_schema)
+        if str_error:
+            str_error = ('For project: {}, error recovering SQLs to load processes:\n{}'
+                         .format(project_name, str_error))
+            return str_error
+        sqls = self.sqls_to_process
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
+        if str_error:
+            str_error = ('Executing SQLs load processes: {}, error:\n{}'
+                         .format(project_name, str_error))
+            return str_error
+        if not isinstance(data, list):
+            str_error = ('Executing SQLs load processes: {}, error:\n{}'
+                         .format(project_name, 'Data must be a list'))
+            return str_error
+        for feature in data:
+            process_label = feature[processes_defs_project.PROCESESS_FIELD_LABEL]
+            process_dict = {}
+            for field_name in processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]:
+                if field_name == processes_defs_project.PROCESESS_FIELD_GEOMETRY:
+                    continue
+                field_value = ''
+                if field_name in feature:
+                    field_value = feature[field_name]
+                process_dict[field_name] = field_value
+            if process_label in self.process_by_label:
+                self.process_by_label.pop(process_label)
+            self.process_by_label[process_label] = process_dict
+        self.sqls_to_process.clear()
+
         return str_error
 
     def remove_map_view(self,
@@ -243,6 +277,27 @@ class ProjectInspectia(Project):
         wfs_user = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_USER]
         wfs_password = wfs_service[defs_server_api.PROJECT_WFS_SERVICE_TAG_PASSWORD]
         return super().remove_map_view(map_view_id, wfs = [wfs_url, wfs_user, wfs_password])
+
+    def remove_process(self,
+                       process_label):
+        str_error = ''
+        project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
+        project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
+        db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+        str_error = super().remove_process(process_label,
+                                           db_schema = db_schema)
+        if str_error:
+            str_error = ('For project: {}, recovering SQLs to remove process:\n{}\nerror:\n{}'
+                         .format(project_name, process_label, str_error))
+            return str_error
+        sqls = self.sqls_to_process
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
+        if str_error:
+            str_error = ('Executing SQLs to remove process: {},\nerror:\n{}'
+                         .format(project_name, process_label, str_error))
+            return str_error
+        self.process_by_label.pop(process_label)
+        self.sqls_to_process.clear()
 
     def save(self):
         str_error = ''

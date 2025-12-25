@@ -360,3 +360,25 @@ class ProjectInspectia(Project):
         update = True
         return super().save_map_view(map_view_id, map_view_wkb_geometry,
                                      update = update, wfs = [wfs_url, wfs_user, wfs_password])
+
+    def update_process(self,
+                       original_label,
+                       process_label):
+        str_error = ''
+        project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
+        project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
+        db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+        str_error = super().update_process(original_label,
+                                           process_label,
+                                           db_schema = db_schema)
+        if str_error:
+            str_error = ('For project: {}, recovering SQLs to update process:\n{}\nerror:\n{}'
+                         .format(project_name, process_label, str_error))
+            return str_error
+        sqls = self.sqls_to_process
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
+        if str_error:
+            str_error = ('Executing SQLs to update process: {},\nerror:\n{}'
+                         .format(project_name, process_label, str_error))
+            return str_error
+        self.sqls_to_process.clear()

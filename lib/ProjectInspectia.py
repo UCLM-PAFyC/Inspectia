@@ -263,6 +263,11 @@ class ProjectInspectia(Project):
 
         return str_error
 
+    def project_definition_gui(self,
+                               is_process_creation,
+                               parent_widget = None):
+        return super().project_definition_gui(is_process_creation, parent_widget)
+
     def remove_map_view(self,
                         map_view_id):
         str_error = ''
@@ -299,37 +304,49 @@ class ProjectInspectia(Project):
         self.process_by_label.pop(process_label)
         self.sqls_to_process.clear()
 
-    def save(self):
+    def save(self, is_process_creation = True):
         str_error = ''
-        name = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_NAME]
-        str_error, exists_project = self.pgs_connection.get_exists_project_by_name(name)
-        if str_error:
-            str_error = ('Recovering if exists project: {}, error:\n{}'.format(name, str_error))
-            return str_error
-        if exists_project:
-            str_error = ('Project already exists:\n{}\nSet another name or remove previous project before'.format(name))
-            return str_error
-        tag = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG]
-        author = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_AUTHOR]
-        crs_id = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS]
-        output_path = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_OUTPUT_PATH]
-        description = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_DESCRIPTION]
-        str_start_date = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE]
-        str_finish_date = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_FINISH_DATE]
-        start_date = QDate.fromString(str_start_date, defs_project_definition.QDATE_TO_STRING_FORMAT)
-        finish_date = QDate.fromString(str_finish_date, defs_project_definition.QDATE_TO_STRING_FORMAT)
-        start_date_time = QDateTime()
-        start_date_time.setDate(start_date)
-        finish_date_time = QDateTime()
-        finish_date_time.setDate(finish_date)
-        str_start_date_time = start_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
-        str_finish_date_time = finish_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
-        type = defs_server_api.PROJECT_TYPE_DEFAULT
-        str_error = self.pgs_connection.create_project(name, description,
-                                                       str_start_date_time, str_finish_date_time, type)
-        if str_error:
-            str_error = ('Error creating project:\n{}'.format(str_error))
-            return str_error
+        if not is_process_creation:
+            project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
+            project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
+            db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+            str_error = super().save_project_definition(update = True, db_schema = db_schema)
+            sqls = self.sqls_to_process
+            str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
+            if str_error:
+                str_error = ('Executing SQLs saving project definition: {}, error:\n{}'
+                             .format(project_name, str_error))
+                return str_error
+        else:
+            name = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_NAME]
+            str_error, exists_project = self.pgs_connection.get_exists_project_by_name(name)
+            if str_error:
+                str_error = ('Recovering if exists project: {}, error:\n{}'.format(name, str_error))
+                return str_error
+            if exists_project:
+                str_error = ('Project already exists:\n{}\nSet another name or remove previous project before'.format(name))
+                return str_error
+            tag = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_TAG]
+            author = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_AUTHOR]
+            crs_id = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_CRS]
+            output_path = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_OUTPUT_PATH]
+            description = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_DESCRIPTION]
+            str_start_date = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_START_DATE]
+            str_finish_date = self.project_definition[defs_project_definition.PROJECT_DEFINITIONS_TAG_FINISH_DATE]
+            start_date = QDate.fromString(str_start_date, defs_project_definition.QDATE_TO_STRING_FORMAT)
+            finish_date = QDate.fromString(str_finish_date, defs_project_definition.QDATE_TO_STRING_FORMAT)
+            start_date_time = QDateTime()
+            start_date_time.setDate(start_date)
+            finish_date_time = QDateTime()
+            finish_date_time.setDate(finish_date)
+            str_start_date_time = start_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
+            str_finish_date_time = finish_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
+            type = defs_server_api.PROJECT_TYPE_DEFAULT
+            str_error = self.pgs_connection.create_project(name, description,
+                                                           str_start_date_time, str_finish_date_time, type)
+            if str_error:
+                str_error = ('Error creating project:\n{}'.format(str_error))
+                return str_error
         return str_error
 
     def update_db_project_data(self):

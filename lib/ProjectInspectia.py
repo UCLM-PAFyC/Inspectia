@@ -19,7 +19,7 @@ from pyLibProject.lib.Project import Project
 from pyLibProject.defs import defs_project
 from pyLibProject.defs import defs_layers_groups
 from pyLibProject.defs import defs_layers
-from pyLibGisApi.lib.PostGISServerAPI import PostGISServerConnection
+from pyLibGisApi.lib.PostGISServerAPI import PostGISServerAPI
 from pyLibGisApi.defs import defs_server_api
 from pyLibProcesses.defs import defs_project as processes_defs_project
 from pyLibProcesses.defs import defs_processes as processes_defs_processes

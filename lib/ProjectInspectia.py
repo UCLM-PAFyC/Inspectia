@@ -242,23 +242,24 @@ class ProjectInspectia(Project):
             str_error = ('Executing SQLs load processes: {}, error:\n{}'
                          .format(project_name, str_error))
             return str_error
-        if not isinstance(data, list):
-            str_error = ('Executing SQLs load processes: {}, error:\n{}'
-                         .format(project_name, 'Data must be a list'))
-            return str_error
-        for feature in data:
-            process_label = feature[processes_defs_project.PROCESESS_FIELD_LABEL]
-            process_dict = {}
-            for field_name in processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]:
-                if field_name == processes_defs_project.PROCESESS_FIELD_GEOMETRY:
-                    continue
-                field_value = ''
-                if field_name in feature:
-                    field_value = feature[field_name]
-                process_dict[field_name] = field_value
-            if process_label in self.process_by_label:
-                self.process_by_label.pop(process_label)
-            self.process_by_label[process_label] = process_dict
+        if not data is None:
+            if not isinstance(data, list):
+                str_error = ('Executing SQLs load processes: {}, error:\n{}'
+                             .format(project_name, 'Data must be a list'))
+                return str_error
+            for feature in data:
+                process_label = feature[processes_defs_project.PROCESESS_FIELD_LABEL]
+                process_dict = {}
+                for field_name in processes_defs_project.fields_by_layer[processes_defs_project.PROCESESS_LAYER_NAME]:
+                    if field_name == processes_defs_project.PROCESESS_FIELD_GEOMETRY:
+                        continue
+                    field_value = ''
+                    if field_name in feature:
+                        field_value = feature[field_name]
+                    process_dict[field_name] = field_value
+                if process_label in self.process_by_label:
+                    self.process_by_label.pop(process_label)
+                self.process_by_label[process_label] = process_dict
         self.sqls_to_process.clear()
 
         return str_error

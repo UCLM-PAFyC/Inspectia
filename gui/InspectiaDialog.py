@@ -459,6 +459,11 @@ class InspectiaDialog(QDialog):
         return
 
     def process_run(self):
+        if not self.project:
+            str_error = ('Not exists project')
+            Tools.error_msg(str_error)
+            return False
+        project_id = self.project.db_project[defs_server_api.PROJECT_TAG_ID]
         if not self.process_author_value:
             msg = ("Input process author")
             Tools.info_msg(msg)
@@ -538,6 +543,7 @@ class InspectiaDialog(QDialog):
                 Tools.info_msg(msg)
                 return
             # str_error = object.run_library_process(process, self)
+            self.project.pgs_connection.set_current_project_id(project_id)
             str_error, end_date_time, log = method(process, self)
             if str_error:
                 Tools.error_msg(str_error)

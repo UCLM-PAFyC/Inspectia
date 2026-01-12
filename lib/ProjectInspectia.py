@@ -350,6 +350,50 @@ class ProjectInspectia(Project):
                 return str_error
         return str_error
 
+    def save_process(self,
+                     process_content,
+                     process_author,
+                     process_label,
+                     process_description,
+                     process_log,
+                     process_date_time_as_string,
+                     process_output,
+                     process_remarks):
+        str_error = ''
+        self.sqls_to_process.clear()
+        project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
+        project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
+        db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+        str_error = super().save_process(process_content,
+                                         process_author,
+                                         process_label,
+                                         process_description,
+                                         process_log,
+                                         process_date_time_as_string,
+                                         process_output,
+                                         process_remarks,
+                                         file_path=None,
+                                         db_schema=db_schema)
+        if str_error:
+            return str_error
+        sqls = self.sqls_to_process
+        str_error, data = self.pgs_connection.execute_sqls(project_id, sqls)
+        if str_error:
+            str_error = ('Executing SQLs saving process: {}, error:\n{}'
+                         .format(process_label, str_error))
+            return str_error
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_LABEL] = process_label
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_AUTHOR] = process_author
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_DESCRIPTION] = process_description
+        self.process_by_label[process_label][
+            processes_defs_project.PROCESESS_FIELD_DATE_TIME] = process_date_time_as_string
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_PROCESS_CONTENT] = process_content
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_LOG] = process_log
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_OUTPUT] = process_output
+        self.process_by_label[process_label][processes_defs_project.PROCESESS_FIELD_REMARKS] = process_remarks
+        return str_error
+
+
     def update_db_project_data(self):
         str_error = ''
         project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]

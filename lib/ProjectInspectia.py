@@ -360,7 +360,6 @@ class ProjectInspectia(Project):
                      process_output,
                      process_remarks):
         str_error = ''
-        self.sqls_to_process.clear()
         project_name = self.db_project[defs_server_api.PROJECT_TAG_NAME]
         project_id = self.db_project[defs_server_api.PROJECT_TAG_ID]
         db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)

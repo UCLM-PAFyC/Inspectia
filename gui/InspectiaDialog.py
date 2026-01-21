@@ -114,6 +114,9 @@ class InspectiaDialog(QDialog):
         # self.deleteProjectPushButton.setEnabled(True)
         return
 
+    def close_qgis_project(self):
+        return
+
     def delete_project(self):
         if self.pgs_connection is None:
             str_msg = ("Login before")
@@ -129,6 +132,9 @@ class InspectiaDialog(QDialog):
             Tools.info_msg(str_error)
             return
         self.update_project_management()
+        return
+
+    def delete_qgis_project(self):
         return
 
     def initialize(self):
@@ -226,11 +232,24 @@ class InspectiaDialog(QDialog):
         # self.processDescriptionPushButton.setEnabled(False)
         # self.processRunPushButton.setEnabled(False)
 
+        # layers & QGIS projects
+        self.layersManagementPushButton.clicked.connect(self.layers_management)
+        self.qgisProjectComboBox.addItem(defs_main.NO_COMBO_SELECT)
+        self.qgisProjectComboBox.currentIndexChanged.connect(self.select_qgis_project)
+        self.closeQgisProjectPushButton.clicked.connect(self.close_qgis_project)
+        self.deleteQgisProjectPushButton.clicked.connect(self.delete_qgis_project)
+        self.newQgisProjectPushButton.clicked.connect(self.new_qgis_project)
+        self.openQgisProjectPushButton.clicked.connect(self.open_qgis_project)
+
+
         self.toolBox.setEnabled(False)
         # self.toolBox.setItemEnabled(0, False)
         # self.toolBox.setItemEnabled(1, False)
         # if self.qgis_iface is None:
         #     self.locationsGroupBox.setEnabled(False)
+        return
+
+    def layers_management(self):
         return
 
     def login(self):
@@ -349,6 +368,9 @@ class InspectiaDialog(QDialog):
         self.update_project_management()
         return
 
+    def new_qgis_project(self):
+        return
+
     def open_project(self):
         self.projectDefinitionPushButton.setEnabled(False)
         self.openProjectPushButton.setEnabled(True)
@@ -385,6 +407,9 @@ class InspectiaDialog(QDialog):
         self.processesGroupBox.setEnabled(True)
         self.processInformationGroupBox.setEnabled(False)
         self.update_processes()
+        return
+
+    def open_qgis_project(self):
         return
 
     def process_author(self):
@@ -776,6 +801,9 @@ class InspectiaDialog(QDialog):
         self.locationsGroupBox.setEnabled(False)
         self.processesGroupBox.setEnabled(False)
         self.processInformationGroupBox.setEnabled(False)
+        return
+
+    def select_qgis_project(self):
         return
 
     def select_role(self):

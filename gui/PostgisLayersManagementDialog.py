@@ -6,6 +6,7 @@ import sys
 import math
 import json
 import copy
+import pathlib
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 # current_path = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +21,7 @@ from PyQt5.QtWidgets import (QApplication, QMessageBox, QDialog, QInputDialog, Q
                              QFileDialog, QPushButton, QComboBox, QPlainTextEdit, QLineEdit, QDateEdit,
                              QDialogButtonBox, QVBoxLayout, QTableWidget, QTableWidgetItem, QLabel, QAbstractItemView)
 from PyQt5.QtCore import QDir, QFileInfo, QFile, QSize, Qt, QDate
-from PyQt5.QtGui import QStandardItemModel
+from PyQt5.QtGui import QStandardItemModel, QStandardItem
 
 from pyLibQtTools import Tools
 from pyLibQtTools.Tools import SimpleTextEditDialog
@@ -43,16 +44,55 @@ class PostgisLayersManagementDialog(QDialog):
         self.last_path = None
         self.title = title
         self.str_error = ""
-        self.use_layer_style_column = -1
+        self.layer_style_column = -1
+        self.layer_name_column = -1
         self.initialize(title)
 
     def add_qgis_layers(self):
+        layers_positions_to_process = []
+        for row in range(self.tableWidget.rowCount()):
+            item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+            if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+                continue
+            layers_positions_to_process.append(row)
+        if not layers_positions_to_process:
+            msg = ('There are no selected layers.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+
         return
 
     def delete_layers(self):
+        layers_positions_to_process = []
+        for row in range(self.tableWidget.rowCount()):
+            item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+            if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+                continue
+            layers_positions_to_process.append(row)
+        if not layers_positions_to_process:
+            msg = ('There are no selected layers.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+        target_file = self.targetFileLineEdit.text()
+        if not target_file:
+            msg = ('Select target file before.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+
         return
 
     def download_layers(self):
+        layers_positions_to_process = []
+        for row in range(self.tableWidget.rowCount()):
+            item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+            if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+                continue
+            layers_positions_to_process.append(row)
+        if not layers_positions_to_process:
+            msg = ('There are no selected layers.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+
         return
 
     def get_error(self):
@@ -85,15 +125,73 @@ class PostgisLayersManagementDialog(QDialog):
         self.addQgisPushButton.clicked.connect(self.add_qgis_layers)
         self.removeQgisPushButton.clicked.connect(self.remove_qgis_layers)
         self.update_gui(update_from_postgis=False)
+        self.tableWidget.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
         return
 
-    def on_click(self):
+    def on_click(self, item):
+        row = item.row()
+        col = item.column()
+        str_value = item.text()
+        label = self.tableWidget.horizontalHeaderItem(col).text()
+        if col == self.layer_name_column:
+            currentState = item.checkState()
+            return
+        item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+        if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+            return
+        layer = self.project.pgs_connection.layers[row]
+        if col == self.layer_style_column:
+            layer_name = self.tableWidget.item(row, self.layer_name_column).text()
+            layer_styles = layer[defs_server_api.LAYER_TAG_STYLES]
+            if not layer_styles: # there are no styles
+                return
+            layer_styles.insert(0, defs_pglm.NO_STYLE)
+            current_pos = layer_styles.index(str_value)
+            title = defs_pglm.TITLE_SELECT_LAYER_STYLE
+            selected_value, ok = QInputDialog.getItem(self, title, defs_pglm.STYLE_LABEL, layer_styles, current_pos, False)
+            if ok:# and item:
+                self.tableWidget.item(row, col).setText(selected_value)
+            return
         return
 
     def remove_qgis_layers(self):
+        layers_positions_to_process = []
+        for row in range(self.tableWidget.rowCount()):
+            item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+            if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+                continue
+            layers_positions_to_process.append(row)
+        if not layers_positions_to_process:
+            msg = ('There are no selected layers.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+
         return
 
     def select_target_file(self):
+        title = "Select download target file"
+        previous_file = self.targetFileLineEdit.text()
+        last_path = self.project.settings.value("last_path")
+        if not last_path:
+            last_path = QDir.currentPath()
+            self.project.settings.setValue("last_path", last_path)
+            self.project.settings.sync()
+        dlg = QFileDialog()
+        dlg.setDirectory(last_path)
+        dlg.setFileMode(QFileDialog.AnyFile)
+        dlg.setNameFilter("Download target file (*.gpkg)")
+        if dlg.exec_():
+            file_names = dlg.selectedFiles()
+            file_name = file_names[0]
+        else:
+            return
+        if file_name:
+            if pathlib.Path(file_name).suffix != '.gpkg':
+                file_name = file_name + '.gpkg'
+            self.targetFileLineEdit.setText(file_name)
+            last_path = QFileInfo(file_name).absolutePath()
+            self.project.settings.setValue("last_path", last_path)
+            self.project.settings.sync()
         return
 
     def update_gui(self, update_from_postgis = True):
@@ -101,7 +199,8 @@ class PostgisLayersManagementDialog(QDialog):
             str_error = self.update_postgis_layers()
             if str_error:
                 self.accept()
-        self.use_layer_style_column = -1
+        self.layer_style_column = -1
+        self.layer_name_column = -1
         self.tableWidget.setRowCount(0)
         layers = self.project.pgs_connection.layers
         style_column = -1
@@ -112,18 +211,25 @@ class PostgisLayersManagementDialog(QDialog):
             for j in range(len(defs_pglm.field_labels)):
                 field_label = defs_pglm.field_labels[j]
                 if field_label == defs_pglm.STYLE_LABEL:
-                    if self.use_layer_style_column == -1:
-                        self.use_layer_style_column = j
+                    if self.layer_style_column == -1:
+                        self.layer_style_column = j
                 pg_field_label =defs_pglm.layer_pg_field_label[field_label]
                 field_value = layer[pg_field_label]
                 item = QTableWidgetItem(field_value)
                 item.setTextAlignment(Qt.AlignCenter)
-                if j == 0:
+                if pg_field_label == defs_server_api.LAYER_TAG_TABLE_NAME:
+                    if self.layer_name_column == -1:
+                        self.layer_name_column = j
                     item.setCheckState(QtCore.Qt.Unchecked)
                     # item.setCheckState(QtCore.Qt.Checked)
                     currentState = item.checkState()
                     item.setData(QtCore.Qt.UserRole, currentState)
                 self.tableWidget.setItem(rowPosition, j, item)
+            # if no style set text to NO_STYLE
+            if self.layer_style_column != -1:
+                if not self.tableWidget.item(rowPosition, self.layer_style_column).text():
+                    self.tableWidget.item(rowPosition, self.layer_style_column).setText(defs_pglm.NO_STYLE)
+        self.tableWidget.resizeColumnsToContents()
         return
 
     def update_layers_from_postgis(self):
@@ -134,4 +240,15 @@ class PostgisLayersManagementDialog(QDialog):
         return str_error
 
     def update_postgis_layers(self):
+        layers_positions_to_process = []
+        for row in range(self.tableWidget.rowCount()):
+            item_layer_name = self.tableWidget.item(row, self.layer_name_column)
+            if item_layer_name.checkState() == Qt.CheckState.Unchecked:
+                continue
+            layers_positions_to_process.append(row)
+        if not layers_positions_to_process:
+            msg = ('There are no selected layers.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+
         return

@@ -20,6 +20,9 @@ layer_pg_field_label['Title'] = defs_server_api.LAYER_TAG_TITLE
 field_labels.append('Style')
 layer_pg_field_label['Style'] = defs_server_api.LAYER_TAG_DEFAULT_STYLE
 
+TITLE_SELECT_LAYER_STYLE = 'Select layer style'
+NO_STYLE = 'No style'
+
 # LAYER_TAG_TABLE_NAME = 'name'
 # LAYER_TAG_ID = 'layer_id'
 # LAYER_TAG_TITLE = 'title'

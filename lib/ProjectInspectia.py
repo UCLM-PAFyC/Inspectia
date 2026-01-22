@@ -11,6 +11,7 @@ sys.path.append(os.path.join(current_path, '..'))
 from PyQt5.QtCore import QDir, QFileInfo, QFile, QDate, QDateTime
 
 from Inspectia.defs import defs_paths
+from Inspectia.defs import defs_pgLayersManagement
 common_libs_absolute_path = os.path.join(current_path, defs_paths.COMMON_LIBS_RELATIVE_PATH)
 sys.path.append(common_libs_absolute_path)
 
@@ -23,6 +24,7 @@ from pyLibGisApi.lib.PostGISServerAPI import PostGISServerAPI
 from pyLibGisApi.defs import defs_server_api
 from pyLibProcesses.defs import defs_project as processes_defs_project
 from pyLibProcesses.defs import defs_processes as processes_defs_processes
+from Inspectia.gui.PostgisLayersManagementDialog import PostgisLayersManagementDialog
 
 class ProjectInspectia(Project):
     def __init__(self, qgis_iface, settings, crs_tools, pgs_connection):
@@ -262,6 +264,20 @@ class ProjectInspectia(Project):
                 self.process_by_label[process_label] = process_dict
         self.sqls_to_process.clear()
 
+        return str_error
+
+    def pg_layers_management(self, parent_widget):
+        str_error = ""
+        title = defs_pgLayersManagement.PG_LAYERS_MANAGEMENT_DIALOG_TITLE
+        dialog = PostgisLayersManagementDialog(self, title, parent = parent_widget)
+        str_error = dialog.get_error()
+        if not str_error:
+            dialog_result = dialog.exec()
+            return
+        str_error = dialog.get_error()
+        # definition_is_saved = dialog.is_saved
+        # if dialog_result != QDialog.Accepted:
+        #     return str_error, definition_is_saved
         return str_error
 
     def project_definition_gui(self,

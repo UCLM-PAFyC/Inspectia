@@ -233,7 +233,7 @@ class InspectiaDialog(QDialog):
         # self.processRunPushButton.setEnabled(False)
 
         # layers & QGIS projects
-        self.layersManagementPushButton.clicked.connect(self.layers_management)
+        self.pgLayersManagementPushButton.clicked.connect(self.pg_layers_management)
         self.qgisProjectComboBox.addItem(defs_main.NO_COMBO_SELECT)
         self.qgisProjectComboBox.currentIndexChanged.connect(self.select_qgis_project)
         self.closeQgisProjectPushButton.clicked.connect(self.close_qgis_project)
@@ -249,7 +249,20 @@ class InspectiaDialog(QDialog):
         #     self.locationsGroupBox.setEnabled(False)
         return
 
-    def layers_management(self):
+    def pg_layers_management(self):
+        if self.pgs_connection is None:
+            str_msg = ("Login before")
+            Tools.info_msg(str_msg)
+            return
+        if not self.project:
+            str_error = ('Not exists project')
+            Tools.error_msg(str_error)
+            return False
+        str_error = self.project.pg_layers_management(self)
+        if str_error:
+            str_error = ('PostGIS layers management, error:\n{}'.format(str_error))
+            Tools.error_msg(str_error)
+            return False
         return
 
     def login(self):

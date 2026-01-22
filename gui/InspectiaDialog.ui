@@ -520,9 +520,9 @@
        <item row="5" column="0">
         <layout class="QHBoxLayout" name="horizontalLayout_4">
          <item>
-          <widget class="QPushButton" name="layersManagementPushButton">
+          <widget class="QPushButton" name="pgLayersManagementPushButton">
            <property name="text">
-            <string>Layers Management</string>
+            <string>PostGIS Layers Management</string>
            </property>
           </widget>
          </item>
@@ -568,7 +568,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="openQqisProjectPushButton">
+          <widget class="QPushButton" name="openQgisProjectPushButton">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -638,7 +638,7 @@
           </spacer>
          </item>
          <item>
-          <widget class="QPushButton" name="newQgisProjectPushButton_2">
+          <widget class="QPushButton" name="newQgisProjectPushButton">
            <property name="minimumSize">
             <size>
              <width>50</width>
@@ -678,8 +678,8 @@
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>781</width>
-        <height>365</height>
+        <width>778</width>
+        <height>381</height>
        </rect>
       </property>
       <attribute name="label">

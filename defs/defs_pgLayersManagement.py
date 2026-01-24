@@ -11,14 +11,17 @@ from pyLibGisApi.defs import defs_server_api
 
 PG_LAYERS_MANAGEMENT_DIALOG_TITLE = 'PostGIS Layers Management'
 STYLE_LABEL = 'Style'
+TYPE_LABEL = 'Type'
 field_labels = []
 layer_pg_field_label = {}
 field_labels.append('Name')
 layer_pg_field_label['Name'] = defs_server_api.LAYER_TAG_TABLE_NAME
 field_labels.append('Title')
 layer_pg_field_label['Title'] = defs_server_api.LAYER_TAG_TITLE
-field_labels.append('Style')
-layer_pg_field_label['Style'] = defs_server_api.LAYER_TAG_DEFAULT_STYLE
+field_labels.append(STYLE_LABEL)
+layer_pg_field_label[STYLE_LABEL] = defs_server_api.LAYER_TAG_DEFAULT_STYLE
+field_labels.append(TYPE_LABEL)
+layer_pg_field_label[TYPE_LABEL] = defs_server_api.SERVER_LAYER_SOURCE_TAG
 
 TITLE_SELECT_LAYER_STYLE = 'Select layer style'
 NO_STYLE = 'No style'

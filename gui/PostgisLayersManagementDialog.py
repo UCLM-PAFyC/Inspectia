@@ -59,7 +59,8 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def delete_layers(self):
@@ -73,26 +74,43 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-        target_file = self.targetFileLineEdit.text()
-        if not target_file:
-            msg = ('Select target file before.')
-            QMessageBox.information(self, 'Information', msg)
-            return
-
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def download_layers(self):
-        layers_positions_to_process = []
+        table_names = []
         for row in range(self.tableWidget.rowCount()):
             item_layer_name = self.tableWidget.item(row, self.layer_name_column)
             if item_layer_name.checkState() == Qt.CheckState.Unchecked:
                 continue
-            layers_positions_to_process.append(row)
-        if not layers_positions_to_process:
+            table_names.append(item_layer_name.text())
+        if not table_names:
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-
+        target_file_path = self.targetFileLineEdit.text()
+        if not target_file_path:
+            msg = ('Select target file before.')
+            QMessageBox.information(self, 'Information', msg)
+            return
+        project_id = self.project.db_project[defs_server_api.PROJECT_TAG_ID]
+        # db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+        if os.path.exists(target_file_path):
+            try:
+                os.remove(target_file_path)
+            except Exception as e:
+                str_error = e.args
+                msg = ('Removing file:\n{}\nError:\n{}'.format(target_file_path, str_error))
+                QMessageBox.information(self, 'Information', msg)
+                return
+        str_error = self.project.pgs_connection.export_layers_to_geopackage(project_id, table_names, target_file_path)
+        if str_error:
+            msg = ('Error downloadig file:\n{}'.format(str_error))
+            QMessageBox.information(self, 'Information', msg)
+        else:
+            msg = ('Downloaded fiel:\n{}'.format(target_file_path))
+            QMessageBox.information(self, 'Information', msg)
         return
 
     def get_error(self):
@@ -165,7 +183,8 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def select_target_file(self):
@@ -250,5 +269,6 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return

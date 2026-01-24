@@ -115,6 +115,8 @@ class InspectiaDialog(QDialog):
         return
 
     def close_qgis_project(self):
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def delete_project(self):
@@ -135,6 +137,8 @@ class InspectiaDialog(QDialog):
         return
 
     def delete_qgis_project(self):
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def initialize(self):
@@ -318,6 +322,12 @@ class InspectiaDialog(QDialog):
         self.loginPushButton.setEnabled(False)
         self.logoutPushButton.setEnabled(True)
         self.registerPushButton.setEnabled(False)
+        self.pgLayersManagementPushButton.setEnabled(False)
+        self.qgisProjectComboBox.setEnabled(False)
+        self.closeQgisProjectPushButton.setEnabled(False)
+        self.deleteQgisProjectPushButton.setEnabled(False)
+        self.newQgisProjectPushButton.setEnabled(False)
+        self.openQgisProjectPushButton.setEnabled(False)
         return
 
     def logout(self):
@@ -382,6 +392,8 @@ class InspectiaDialog(QDialog):
         return
 
     def new_qgis_project(self):
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def open_project(self):
@@ -420,9 +432,17 @@ class InspectiaDialog(QDialog):
         self.processesGroupBox.setEnabled(True)
         self.processInformationGroupBox.setEnabled(False)
         self.update_processes()
+        self.pgLayersManagementPushButton.setEnabled(True)
+        self.qgisProjectComboBox.setEnabled(True)
+        self.closeQgisProjectPushButton.setEnabled(True)
+        self.deleteQgisProjectPushButton.setEnabled(True)
+        self.newQgisProjectPushButton.setEnabled(True)
+        self.openQgisProjectPushButton.setEnabled(True)
         return
 
     def open_qgis_project(self):
+        msg = ('Option not implemented.')
+        QMessageBox.information(self, 'Information', msg)
         return
 
     def process_author(self):
@@ -814,6 +834,12 @@ class InspectiaDialog(QDialog):
         self.locationsGroupBox.setEnabled(False)
         self.processesGroupBox.setEnabled(False)
         self.processInformationGroupBox.setEnabled(False)
+        self.pgLayersManagementPushButton.setEnabled(False)
+        self.qgisProjectComboBox.setEnabled(False)
+        self.closeQgisProjectPushButton.setEnabled(False)
+        self.deleteQgisProjectPushButton.setEnabled(False)
+        self.newQgisProjectPushButton.setEnabled(False)
+        self.openQgisProjectPushButton.setEnabled(False)
         return
 
     def select_qgis_project(self):

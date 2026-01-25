@@ -74,8 +74,37 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('There are no selected layers.')
             QMessageBox.information(self, 'Information', msg)
             return
-        msg = ('Option not implemented.')
-        QMessageBox.information(self, 'Information', msg)
+        layers = self.project.pgs_connection.layers
+        title = ("Removing layers\n")
+        msg = ("Removing PostGIS layers:")
+        for layer_position in layers_positions_to_process:
+            layer_name = layers[layer_position][defs_server_api.LAYER_TAG_TABLE_NAME]
+            msg += ("\n- {}".format(layer_name))
+        msg += ("\n\nAre you sure?")
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Question)
+        msgBox.setWindowTitle(title)
+        msgBox.setText(msg)
+        msgBox.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+        msgBox.button(QMessageBox.Ok).setText("Accept")
+        msgBox.button(QMessageBox.Cancel).setText("Cancel")
+        #QMessageBox.Save | QMessageBox.Discard | QMessageBox.StandardButton.Cancel)
+        # msgBox.setDefaultButton(QMessageBox.Cancel)
+        ret = msgBox.exec()
+        if ret == QMessageBox.Cancel:
+            return
+        project_id = self.project.db_project[defs_server_api.PROJECT_TAG_ID]
+        # db_schema = defs_server_api.PROJECT_SCHEMA_PREFIX + str(project_id)
+        for layer_position in layers_positions_to_process:
+            layer_name = layers[layer_position][defs_server_api.LAYER_TAG_TABLE_NAME]
+            layer_id = layers[layer_position][defs_server_api.LAYER_TAG_ID]
+            str_error = self.project.pgs_connection.delete_layer(project_id, layer_id)
+            if str_error:
+                msg = ('Deleting layer: {}\nError:\n{}'.format(layer_name, str_error))
+                QMessageBox.information(self, 'Information', msg)
+        self.update_gui(update_from_postgis=True)
+        # msg = ('Downloaded fiel:\n{}'.format(target_file_path))
+        # QMessageBox.information(self, 'Information', msg)
         return
 
     def download_layers(self):
@@ -109,7 +138,7 @@ class PostgisLayersManagementDialog(QDialog):
             msg = ('Error downloadig file:\n{}'.format(str_error))
             QMessageBox.information(self, 'Information', msg)
         else:
-            msg = ('Downloaded fiel:\n{}'.format(target_file_path))
+            msg = ('Downloaded file:\n{}'.format(target_file_path))
             QMessageBox.information(self, 'Information', msg)
         return
 
@@ -215,7 +244,7 @@ class PostgisLayersManagementDialog(QDialog):
 
     def update_gui(self, update_from_postgis = True):
         if update_from_postgis:
-            str_error = self.update_postgis_layers()
+            str_error = self.update_layers_from_postgis()
             if str_error:
                 self.accept()
         self.layer_style_column = -1

@@ -60,6 +60,7 @@ class InspectiaDialog(QDialog):
         loadUi(os.path.join(os.path.dirname(__file__), 'InspectiaDialog.ui'), self)
         self.settings = settings
         self.main_path = main_path
+        self.crs_tools = None
         self.project = None
         self.qgis_iface = None
         self.processes_manager = None

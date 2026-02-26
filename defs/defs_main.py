@@ -18,8 +18,10 @@ SETTINGS_FILE = "settings.ini"
 NO_COMBO_SELECT = " ... "
 MAIN_WIDGET_TITLE = "Inspectia"
 GIS_SERVER_API_URL_DEFAULT = "https://inspectiawebgis.tidop.es"
-GIS_SERVER_API_EMAIL_DEFAULT = "user02@inspectia.es"
-GIS_SERVER_API_PASSWORD_DEFAULT = "user02@inspectia.es"
+# GIS_SERVER_API_EMAIL_DEFAULT = "user02@inspectia.es"
+# GIS_SERVER_API_PASSWORD_DEFAULT = "user02@inspectia.es"
+GIS_SERVER_DATA_MODEL_NAME = "inspectia-1-0"
+
 
 
 

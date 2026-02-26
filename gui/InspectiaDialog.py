@@ -5,6 +5,7 @@ import os, sys
 import shutil
 import pathlib
 import json
+import copy
 
 from PyQt5.uic import loadUi
 from PyQt5.QtWidgets import (QApplication, QMessageBox, QDialog, QFileDialog, QPushButton, QComboBox,
@@ -72,6 +73,8 @@ class InspectiaDialog(QDialog):
         self.gis_server_api_password = None
         self.gis_server_api_token = None
         self.pgs_connection = None
+        self.pgs_data_model_name = None
+        self.pgs_data_model = None
         self.user_is_owner = False
         self.user_is_admin = False
         self.user_is_editor = False
@@ -144,6 +147,7 @@ class InspectiaDialog(QDialog):
 
     def initialize(self):
         self.crs_tools = CRSsTools()
+        self.pgs_data_model_name = defs_main.GIS_SERVER_DATA_MODEL_NAME
         # process_path_by_provider = {}
         # for provider in app_defs_processes.processes_providers:
         #     process_path_by_provider[provider] = []
@@ -181,15 +185,15 @@ class InspectiaDialog(QDialog):
             self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_URL, self.gis_server_api_url)
             self.settings.sync()
         self.gis_server_api_email = self.settings.value(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_EMAIL)
-        if not self.gis_server_api_email:
-            self.gis_server_api_email = defs_main.GIS_SERVER_API_EMAIL_DEFAULT
-            self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_EMAIL, self.gis_server_api_email)
-            self.settings.sync()
+        # if not self.gis_server_api_email:
+        #     self.gis_server_api_email = defs_main.GIS_SERVER_API_EMAIL_DEFAULT
+        #     self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_EMAIL, self.gis_server_api_email)
+        #     self.settings.sync()
         self.gis_server_api_password = self.settings.value(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_PASSWORD)
-        if not self.gis_server_api_password:
-            self.gis_server_api_password = defs_main.GIS_SERVER_API_PASSWORD_DEFAULT
-            self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_PASSWORD, self.gis_server_api_password)
-            self.settings.sync()
+        # if not self.gis_server_api_password:
+        #     self.gis_server_api_password = defs_main.GIS_SERVER_API_PASSWORD_DEFAULT
+        #     self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_PASSWORD, self.gis_server_api_password)
+        #     self.settings.sync()
         self.gis_server_api_token = self.settings.value(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_TOKEN)
         self.setWindowTitle(defs_main.MAIN_WIDGET_TITLE)
         self.registerPushButton.clicked.connect(self.register)
@@ -308,6 +312,84 @@ class InspectiaDialog(QDialog):
             #     self.toolBox.setItemEnabled(0, False)
             #     # self.update_project_management()
             return
+        str_error, self.data_model = self.pgs_connection.get_data_model(self.pgs_data_model_name)
+        if str_error:
+            str_error = ('Not exists Inspectia data model')
+            Tools.error_msg(str_error)
+            self.gis_server_api_password = None
+            self.loginPushButton.setEnabled(True)
+            self.logoutPushButton.setEnabled(False)
+            self.registerPushButton.setEnabled(True)
+            self.close_project()
+            # self.update_project_management()
+            self.toolBox.setItemEnabled(0, False)
+            # self.update_project_management()
+            # if self.gis_server_api_email is None:
+            #     self.toolBox.setItemEnabled(0, False)
+            #     # self.update_project_management()
+            return
+
+        # test add new data model
+        # data_model_new_name = 'data_model_name_dhl_test'
+        # new_data_model = copy.deepcopy(self.data_model)
+        # new_data_model[defs_server_api.DATA_MODEL_TAG_NAME] = data_model_new_name
+        # str_error = self.pgs_connection.create_data_model(new_data_model)
+        # if str_error:
+        #     str_error = ('Creating data model: {}\nError:\n{}'.format(data_model_new_name, str_error))
+        #     Tools.error_msg(str_error)
+        #     self.gis_server_api_password = None
+        #     self.loginPushButton.setEnabled(True)
+        #     self.logoutPushButton.setEnabled(False)
+        #     self.registerPushButton.setEnabled(True)
+        #     self.close_project()
+        #     # self.update_project_management()
+        #     self.toolBox.setItemEnabled(0, False)
+        #     # self.update_project_management()
+        #     # if self.gis_server_api_email is None:
+        #     #     self.toolBox.setItemEnabled(0, False)
+        #     #     # self.update_project_management()
+        #     return
+        # test update a data model
+        # updated_data_model_new_name = 'updated_data_model_name_dhl_test'
+        # str_error, updated_new_data_model = self.pgs_connection.get_data_model(updated_data_model_new_name)
+        # updated_new_data_model[defs_server_api.DATA_MODEL_TAG_NAME] = 'updated_data_model_name_dhl_test'
+        # str_error = self.pgs_connection.update_data_model(updated_new_data_model)
+        # if str_error:
+        #     str_error = ('Updating data model: {}\nError:\n{}'
+        #                  .format(updated_data_model_new_name, str_error))
+        #     Tools.error_msg(str_error)
+        #     self.gis_server_api_password = None
+        #     self.loginPushButton.setEnabled(True)
+        #     self.logoutPushButton.setEnabled(False)
+        #     self.registerPushButton.setEnabled(True)
+        #     self.close_project()
+        #     # self.update_project_management()
+        #     self.toolBox.setItemEnabled(0, False)
+        #     # self.update_project_management()
+        #     # if self.gis_server_api_email is None:
+        #     #     self.toolBox.setItemEnabled(0, False)
+        #     #     # self.update_project_management()
+        #     return
+        # test delete a data model
+        # updated_data_model_new_name = 'updated_data_model_name_dhl_test'
+        # str_error = self.pgs_connection.delete_data_model(updated_data_model_new_name)
+        # if str_error:
+        #     str_error = ('Updating data model: {}\nError:\n{}'
+        #                  .format(updated_data_model_new_name, str_error))
+        #     Tools.error_msg(str_error)
+        #     self.gis_server_api_password = None
+        #     self.loginPushButton.setEnabled(True)
+        #     self.logoutPushButton.setEnabled(False)
+        #     self.registerPushButton.setEnabled(True)
+        #     self.close_project()
+        #     # self.update_project_management()
+        #     self.toolBox.setItemEnabled(0, False)
+        #     # self.update_project_management()
+        #     # if self.gis_server_api_email is None:
+        #     #     self.toolBox.setItemEnabled(0, False)
+        #     #     # self.update_project_management()
+        #     return
+
         self.toolBox.setItemEnabled(0, True)
         self.gis_server_api_url = url
         self.settings.setValue(defs_qsettings.QSETTINGS_TAG_GIS_SERVER_API_URL, self.gis_server_api_url)

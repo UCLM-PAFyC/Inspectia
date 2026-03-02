@@ -27,12 +27,13 @@ from pyLibProcesses.defs import defs_processes as processes_defs_processes
 from Inspectia.gui.PostgisLayersManagementDialog import PostgisLayersManagementDialog
 
 class ProjectInspectia(Project):
-    def __init__(self, qgis_iface, settings, crs_tools, pgs_connection):
+    def __init__(self, qgis_iface, settings, crs_tools, pgs_connection, data_model):
         super().__init__(qgis_iface, settings, crs_tools)
         self.pgs_connection = pgs_connection
         self.db_project = None
         self.layer_name_prefix = None
         self.db_schema = ''
+        self.data_model = data_model
 
     def add_map_view(self,
                      map_view_id,
@@ -359,8 +360,10 @@ class ProjectInspectia(Project):
             str_start_date_time = start_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
             str_finish_date_time = finish_date_time.toString(defs_server_api.PROJECT_DATE_TIME_FORMAT)
             type = defs_server_api.PROJECT_TYPE_DEFAULT
+            data_model_id = self.data_model[defs_server_api.DATA_MODEL_TAG_ID]
             str_error = self.pgs_connection.create_project(name, description,
-                                                           str_start_date_time, str_finish_date_time, type)
+                                                           str_start_date_time, str_finish_date_time,
+                                                           type, data_model_id)
             if str_error:
                 str_error = ('Error creating project:\n{}'.format(str_error))
                 return str_error

@@ -462,7 +462,8 @@ class InspectiaDialog(QDialog):
         if not self.project is None:
             del self.project
             self.project = None
-        self.project = ProjectInspectia(self.qgis_iface, self.settings, self.crs_tools, self.pgs_connection)
+        self.project = ProjectInspectia(self.qgis_iface, self.settings, self.crs_tools,
+                                        self.pgs_connection, self.data_model)
         str_error, definition_is_saved = self.project.create(self)
         if str_error:
             str_error = ('Error creating project:\n{}'.format(str_error))
@@ -492,7 +493,8 @@ class InspectiaDialog(QDialog):
         if not self.project is None:
             del self.project
             self.project = None
-        self.project = ProjectInspectia(self.qgis_iface, self.settings, self.crs_tools, self.pgs_connection)
+        self.project = ProjectInspectia(self.qgis_iface, self.settings, self.crs_tools,
+                                        self.pgs_connection, self.data_model)
         project_name = self.projectComboBox.currentText()
         str_error = self.project.open(project_name)
         if str_error:
